@@ -1,15 +1,15 @@
-export type SpecialCode = 'DNF' | 'DNS' | 'DSQ'
+export type Participant = {
+  id: string;
+  sailNumber: string;
+  club: string;
+  skipper: string;
+  crew: string[]; // 複数名OK
+};
 
-export interface Participant {
-  name: string
-  sailNo: string
-  club?: string
-}
+export type RaceResult = {
+  participantId: string;
+  position: number | null; // 着順
+  code: "DNF" | "DNS" | "DSQ" | "BFD" | "" | null; // 特別コード
+};
 
-export type RaceResult = (number | SpecialCode | null)[]
-
-export interface AppData {
-  participants: Participant[]
-  raceResults: RaceResult[]
-  discardCount: number
-}
+export type AllRaceResults = RaceResult[][]; // [レース1, レース2, ...]
