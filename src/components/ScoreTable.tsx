@@ -15,9 +15,7 @@ const codeMap: Record<RaceCode, string> = {
 }
 
 const ScoreTable: React.FC<Props> = ({ data }) => {
-  const { table, totals, cutIndexes, ranks } = calcRanking(data)
-
-  // 合計点で昇順にソート（低いほど上位）
+  const { table, totals, cutIndexes } = calcRanking(data)
   const sortedParticipants = [...data.participants].sort((a, b) => {
     const atotal = totals[a.id] ?? Infinity
     const btotal = totals[b.id] ?? Infinity
@@ -31,12 +29,10 @@ const ScoreTable: React.FC<Props> = ({ data }) => {
         <thead>
           <tr style={{ background: '#e6f0d6' }}>
             <th>Rank</th>
-            <th>Bow #</th>
-            <th>Sail #</th>
-            <th>Belongs</th>
-            <th>Skipper</th>
-            <th>Crew</th>
-            <th>Net</th>
+            <th>セールNo.</th>
+            <th>クラブ</th>
+            <th>スキッパー</th>
+            <th>クルー</th>
             <th>Total</th>
             {data.results.map((_, i) => (
               <th key={i} style={{ minWidth: 40 }}>R{i + 1}</th>
@@ -46,33 +42,16 @@ const ScoreTable: React.FC<Props> = ({ data }) => {
         <tbody>
           {sortedParticipants.map((p, idx) => (
             <tr key={p.id}>
-              {/* 順位 */}
               <td style={{ textAlign: 'center', fontWeight: 'bold', background: '#e6f0d6' }}>{idx + 1}</td>
-              {/* Bow #（Bow番号がなければ空白） */}
-              <td style={{ textAlign: 'center' }}>{p.bowNumber ?? ''}</td>
-              {/* Sail # */}
               <td style={{ textAlign: 'center' }}>{p.sailNumber ?? ''}</td>
-              {/* Belongs（所属クラブ） */}
               <td>{p.club ?? ''}</td>
-              {/* Skipper（艇長/選手名） */}
               <td>{p.skipper ?? p.name ?? ''}</td>
-              {/* Crew */}
               <td>
                 {Array.isArray(p.crew)
                   ? p.crew.filter(Boolean).join(', ')
                   : (p.crew ?? '')}
               </td>
-              {/* Net（カット後合計点。通常は合計点と同じ） */}
-              <td style={{
-                background: '#e6f0d6',
-                textAlign: 'center'
-              }}>{totals[p.id]}</td>
-              {/* Total（合計点） */}
-              <td style={{
-                background: '#e6f0d6',
-                textAlign: 'center'
-              }}>{totals[p.id]}</td>
-              {/* 各レース点 */}
+              <td style={{ background: '#e6f0d6', textAlign: 'center' }}>{totals[p.id]}</td>
               {table[p.id].map((sc, rIdx) => (
                 <td key={rIdx} style={{
                   textAlign: 'center',
