@@ -1,72 +1,53 @@
-import React, { useRef, useState } from 'react'
-import { Participant } from '../types/types'
+import React, { useState } from 'react'
+import { Participant } from '../types'
 
-interface Props {
-  participants: Participant[]
-  addParticipant: (p: Participant) => void
-  removeParticipant: (idx: number) => void
-  disabled?: boolean
+type Props = {
+  initial?: Participant
+  onSubmit: (p: Participant) => void
+  onCancel: () => void
 }
 
-function ParticipantForm({ participants, addParticipant, removeParticipant, disabled }: Props) {
-  const [name, setName] = useState('')
-  const [sailNo, setSailNo] = useState('')
-  const [club, setClub] = useState('')
-  const nameRef = useRef<HTMLInputElement>(null)
+const ParticipantsForm: React.FC<Props> = ({ initial, onSubmit, onCancel }) => {
+  const [sailNumber, setSailNumber] = useState(initial?.sailNumber ?? '')
+  const [club, setClub] = useState(initial?.club ?? '')
+  const [skipper, setSkipper] = useState(initial?.skipper ?? initial?.name ?? '')
+  const [crew, setCrew] = useState(
+    Array.isArray(initial?.crew)
+      ? initial?.crew.join(', ')
+      : (initial?.crew ?? '')
+  )
 
-  const handleAdd = (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name || !sailNo) return
-    addParticipant({ name, sailNo, club })
-    setName('')
-    setSailNo('')
-    setClub('')
-    nameRef.current?.focus()
+    onSubmit({
+      id: initial?.id ?? Math.random().toString(36).slice(2),
+      sailNumber: sailNumber.trim(),
+      club: club.trim(),
+      skipper: skipper.trim(),
+      crew: crew.split(',').map(c => c.trim()).filter(Boolean),
+    })
   }
 
   return (
-    <section>
-      <h2>参加者登録</h2>
-      <form style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }} onSubmit={handleAdd}>
-        <div>
-          <label>選手名<br/>
-            <input ref={nameRef} disabled={disabled} value={name} onChange={e=>setName(e.target.value)} required />
-          </label>
-        </div>
-        <div>
-          <label>セール番号<br/>
-            <input disabled={disabled} value={sailNo} onChange={e=>setSailNo(e.target.value)} required />
-          </label>
-        </div>
-        <div>
-          <label>クラブ名（任意）<br/>
-            <input disabled={disabled} value={club} onChange={e=>setClub(e.target.value)} />
-          </label>
-        </div>
-        <button type="submit" disabled={disabled || !name || !sailNo}>追加</button>
-      </form>
-      <div style={{marginTop:12}}>
-        <table style={{width:"100%", maxWidth:500, borderCollapse:"collapse"}}>
-          <thead>
-            <tr style={{background:"#f5f5f5"}}><th>選手名</th><th>セールNo.</th><th>クラブ</th><th></th></tr>
-          </thead>
-          <tbody>
-            {participants.map((p, i) =>
-              <tr key={i}>
-                <td>{p.name}</td>
-                <td>{p.sailNo}</td>
-                <td>{p.club}</td>
-                <td>
-                  <button onClick={()=>removeParticipant(i)} disabled={disabled}>削除</button>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+    <form onSubmit={handleSubmit} style={{ margin: "16px 0" }}>
+      <div>
+        <label>セールNo. <input value={sailNumber} onChange={e => setSailNumber(e.target.value)} required /></label>
       </div>
-      {disabled && <div style={{color:"#888", fontSize:13, marginTop:4}}>※レース開始後の参加者編集はできません</div>}
-    </section>
+      <div>
+        <label>クラブ <input value={club} onChange={e => setClub(e.target.value)} required /></label>
+      </div>
+      <div>
+        <label>スキッパー <input value={skipper} onChange={e => setSkipper(e.target.value)} required /></label>
+      </div>
+      <div>
+        <label>クルー（カンマ区切り） <input value={crew} onChange={e => setCrew(e.target.value)} /></label>
+      </div>
+      <div style={{ marginTop: 8 }}>
+        <button type="submit">保存</button>
+        <button type="button" onClick={onCancel} style={{ marginLeft: 8 }}>キャンセル</button>
+      </div>
+    </form>
   )
 }
 
-export default ParticipantForm
+export default ParticipantsForm
