@@ -115,7 +115,15 @@ export default function App() {
     }
   }
 
-  
+   // ★ 表示時だけ順位順にソートしてRaceInputTableに渡す
+  function sortRaceByPosition(race: RaceResult[]) {
+    // position（順位）がnullのものは最後、それ以外は昇順
+    return [...race].sort((a, b) => {
+      if (a.position == null) return 1;
+      if (b.position == null) return -1;
+      return a.position - b.position;
+    });
+  }
   
   return (
     <div style={{ padding: 24, maxWidth: 950, margin: "0 auto" }}>
