@@ -6,7 +6,7 @@ type Props = {
   setData: (d: AppData) => void
 }
 
-const resultCodes: RaceCode[] = ['', 'DNF', 'DNS', 'DSQ']
+const resultCodes: RaceCode[] = ['', 'DNF', 'DNS', 'DSQ', 'BFD']
 
 const RaceResults: React.FC<Props> = ({ data, setData }) => {
   const addRace = () => {
@@ -59,7 +59,13 @@ const RaceResults: React.FC<Props> = ({ data, setData }) => {
           <table>
             <thead>
               <tr>
-                <th>選手名</th><th>順位</th><th>特別</th>
+                <th>Bow #</th>
+                <th>Sail #</th>
+                <th>所属</th>
+                <th>Skipper</th>
+                <th>Crew</th>
+                <th>順位</th>
+                <th>特別</th>
               </tr>
             </thead>
             <tbody>
@@ -68,7 +74,14 @@ const RaceResults: React.FC<Props> = ({ data, setData }) => {
                 if (!participant) return null
                 return (
                   <tr key={result.participantId}>
-                    <td>{participant.name}</td>
+                    <td>{participant.bowNumber ?? ''}</td>
+                    <td>{participant.sailNumber ?? ''}</td>
+                    <td>{participant.club ?? ''}</td>
+                    <td>{participant.skipper ?? participant.name ?? ''}</td>
+                    <td>{Array.isArray(participant.crew)
+                      ? participant.crew.filter(Boolean).join(', ')
+                      : (participant.crew ?? '')}
+                    </td>
                     <td>
                       <input
                         type="number"
@@ -78,7 +91,8 @@ const RaceResults: React.FC<Props> = ({ data, setData }) => {
                         onChange={e =>
                           updateResult(raceIdx, result.participantId, 'position', e.target.value)
                         }
-                        disabled={result.code !== ''}
+                        // DNF等でも順位入力を許可
+                        // disabled={result.code !== ''}
                       />
                     </td>
                     <td>
