@@ -15,7 +15,7 @@ export default function App() {
     try {
       const s = localStorage.getItem(PARTICIPANTS_KEY);
       return s ? JSON.parse(s) : [];
-    } catch (e) {
+    } catch {
       localStorage.removeItem(PARTICIPANTS_KEY);
       return [];
   });
@@ -23,7 +23,7 @@ export default function App() {
     try {
       const s = localStorage.getItem(RESULTS_KEY);
       return s ? JSON.parse(s) : [];
-    } catch (e) {
+    } catch {
       localStorage.removeItem(RESULTS_KEY);
       return [];
   });
