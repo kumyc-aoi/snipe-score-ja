@@ -59,11 +59,39 @@ export default function App() {
     setResults((prev) => prev.map((race, i) => (i === raceIdx ? newRace : race)));
   }
 
+  // すべてリセット
+  function handleResetAll() {
+    if (window.confirm("全ての参加者・レース・結果をリセットします。よろしいですか？")) {
+      setParticipants([]);
+      setResults([]);
+    }
+  }
+
+  // 各レースごとのリセット
+  function handleResetRace(idx: number) {
+    if (window.confirm(`第${idx + 1}レースの結果をリセットします。よろしいですか？`)) {
+      setResults((prev) =>
+        prev.map((race, i) =>
+          i === idx
+            ? participants.map((p) => ({
+                participantId: p.id,
+                position: null,
+                code: "",
+              }))
+            : race
+        )
+      );
+    }
+  }
+
   return (
     <div style={{ padding: 24, maxWidth: 950, margin: "0 auto" }}>
       <h1>Snipe Score</h1>
 
       <button onClick={handleAddParticipant}>参加者追加</button>
+      <button onClick={handleResetAll} style={{ marginLeft: 10, color: "red" }}>
+        すべてリセット
+      </button>
       {showForm && (
         <ParticipantForm
           initial={editing ?? undefined}
@@ -87,6 +115,12 @@ export default function App() {
               <button onClick={() => handleRemoveRace(idx)} style={{ marginLeft: 12, color: "red" }}>
                 削除
               </button>
+              <button
+                onClick={() => handleResetRace(idx)}
+                style={{ marginLeft: 12 }}
+              >
+                このレースをリセット
+              </button>
             </div>
             <RaceInputTable
               participants={participants}
@@ -99,5 +133,3 @@ export default function App() {
 
       <ScoreTable participants={participants} results={results} />
     </div>
-  );
-}
