@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Participant, RaceResult, AllRaceResults } from "./types";
 import Participants from "./components/Participants";
 import ParticipantForm from "./components/ParticipantForm";
@@ -6,15 +6,43 @@ import RaceInputTable from "./components/RaceInputTable";
 import ScoreTable from "./components/ScoreTable";
 import ParticipantsExportImport from "./components/ParticipantsExportImport";
 
-const initialParticipants: Participant[] = [];
-const initialResults: AllRaceResults = [];
+const PARTICIPANTS_KEY = "med-yacht-participants";
+const RESULTS_KEY = "med-yacht-results";
+
+// ローカルストレージから初期値を取得する関数
+function loadParticipants(): Participant[] {
+  try {
+    const s = localStorage.getItem(PARTICIPANTS_KEY);
+    return s ? JSON.parse(s) : [];
+  } catch {
+    localStorage.removeItem(PARTICIPANTS_KEY);
+    return [];
+  }
+}
+function loadResults(): AllRaceResults {
+  try {
+    const s = localStorage.getItem(RESULTS_KEY);
+    return s ? JSON.parse(s) : [];
+  } catch {
+    localStorage.removeItem(RESULTS_KEY);
+    return [];
+  }
+}
 
 export default function App() {
-  const [participants, setParticipants] = useState<Participant[]>(initialParticipants);
+  const [participants, setParticipants] = useState<Participant[]>(loadParticipants);
   const [editing, setEditing] = useState<Participant | null>(null);
   const [showForm, setShowForm] = useState(false);
 
-  const [results, setResults] = useState<AllRaceResults>(initialResults);
+  const [results, setResults] = useState<AllRaceResults>(loadResults);
+
+  // 参加者・結果が変わるたびにlocalStorageへ保存
+  useEffect(() => {
+    localStorage.setItem(PARTICIPANTS_KEY, JSON.stringify(participants));
+  }, [participants]);
+  useEffect(() => {
+    localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
+  }, [results]);
 
   // 参加者追加・編集
   function handleSubmitParticipant(p: Participant) {
@@ -65,6 +93,8 @@ export default function App() {
     if (window.confirm("全ての参加者・レース・結果をリセットします。よろしいですか？")) {
       setParticipants([]);
       setResults([]);
+      localStorage.removeItem(PARTICIPANTS_KEY);
+      localStorage.removeItem(RESULTS_KEY);
     }
   }
 
