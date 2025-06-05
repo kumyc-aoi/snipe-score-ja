@@ -1,63 +1,41 @@
-import React, { useState } from 'react'
-import { AppData, Participant } from '../types'
+import React from 'react'
+import { Participant } from '../types'
 
 type Props = {
-  data: AppData
-  setData: (d: AppData) => void
+  participants: Participant[]
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
 }
 
-const empty: Omit<Participant, 'id'> = { name: '', sailNumber: '', club: '' }
-
-const Participants: React.FC<Props> = ({ data, setData }) => {
-  const [input, setInput] = useState(empty)
-
-  const addParticipant = () => {
-    if (!input.name || !input.sailNumber) return
-    setData({
-      ...data,
-      participants: [
-        ...data.participants,
-        {
-          id: Date.now().toString(),
-          ...input
-        }
-      ]
-    })
-    setInput(empty)
-  }
-
-  const remove = (id: string) => {
-    setData({
-      ...data,
-      participants: data.participants.filter(p => p.id !== id),
-      results: data.results.map(race =>
-        race.filter(r => r.participantId !== id)
-      )
-    })
-  }
-
+const Participants: React.FC<Props> = ({ participants, onEdit, onDelete }) => {
   return (
     <section>
-      <h2>参加者登録</h2>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-        <input placeholder="選手名" value={input.name} onChange={e => setInput(i => ({ ...i, name: e.target.value }))} />
-        <input placeholder="セール番号" value={input.sailNumber} onChange={e => setInput(i => ({ ...i, sailNumber: e.target.value }))} />
-        <input placeholder="クラブ名（任意）" value={input.club} onChange={e => setInput(i => ({ ...i, club: e.target.value }))} />
-        <button onClick={addParticipant}>追加</button>
-      </div>
-      <table>
+      <h2>参加者一覧</h2>
+      <table border={1} style={{ borderCollapse: 'collapse', width: '100%', background: '#fff', fontSize: 15 }}>
         <thead>
-          <tr>
-            <th>選手名</th><th>セール番号</th><th>クラブ名</th><th></th>
+          <tr style={{ background: '#e6f0d6' }}>
+            <th>セールNo.</th>
+            <th>クラブ</th>
+            <th>スキッパー</th>
+            <th>クルー</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          {data.participants.map(p => (
+          {participants.map((p) => (
             <tr key={p.id}>
-              <td>{p.name}</td>
-              <td>{p.sailNumber}</td>
-              <td>{p.club}</td>
-              <td><button onClick={() => remove(p.id)}>削除</button></td>
+              <td style={{ textAlign: 'center' }}>{p.sailNumber ?? ''}</td>
+              <td>{p.club ?? ''}</td>
+              <td>{p.skipper ?? p.name ?? ''}</td>
+              <td>
+                {Array.isArray(p.crew)
+                  ? p.crew.filter(Boolean).join(', ')
+                  : (p.crew ?? '')}
+              </td>
+              <td>
+                <button onClick={() => onEdit(p.id)}>編集</button>
+                <button onClick={() => onDelete(p.id)} style={{ marginLeft: 8, color: "red" }}>削除</button>
+              </td>
             </tr>
           ))}
         </tbody>
