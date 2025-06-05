@@ -1,77 +1,93 @@
-import React from 'react'
-import { AppData, RaceCode } from '../types'
-import { calcRanking } from '../logic/ranking'
+import React from "react";
+import { Participant, AllRaceResults } from "../types";
+
+// シンプルな集計ロジック：カットなし、特別コードは参加者数+1点
+function calcScore(
+  participants: Participant[],
+  results: AllRaceResults
+): { [id: string]: number } {
+  const n = participants.length;
+  const total: { [id: string]: number } = {};
+  participants.forEach((p) => (total[p.id] = 0));
+  results.forEach((race) => {
+    race.forEach((res) => {
+      if (res.position && !res.code) {
+        total[res.participantId] += res.position;
+      } else if (res.code) {
+        total[res.participantId] += n + 1;
+      }
+    });
+  });
+  return total;
+}
+
+const codeMap: { [k: string]: string } = {
+  DNF: "DNF",
+  DNS: "DNS",
+  DSQ: "DSQ",
+  BFD: "BFD",
+  "": "",
+};
 
 type Props = {
-  data: AppData
-}
+  participants: Participant[];
+  results: AllRaceResults;
+};
 
-const codeMap: Record<RaceCode, string> = {
-  '': '',
-  'DNF': 'DNF',
-  'DNS': 'DNS',
-  'DSQ': 'DSQ',
-  'BFD': 'BFD',
-}
+const ScoreTable: React.FC<Props> = ({ participants, results }) => {
+  if (participants.length === 0 || results.length === 0) return null;
+  const scores = calcScore(participants, results);
 
-const ScoreTable: React.FC<Props> = ({ data }) => {
-  const { table, totals, cutIndexes } = calcRanking(data)
-  const sortedParticipants = [...data.participants].sort((a, b) => {
-    const atotal = totals[a.id] ?? Infinity
-    const btotal = totals[b.id] ?? Infinity
-    return atotal - btotal
-  })
+  const sorted = [...participants].sort((a, b) => scores[a.id] - scores[b.id]);
 
   return (
-    <section>
+    <section style={{ marginTop: 40 }}>
       <h2>順位表</h2>
-      <table border={1} style={{ borderCollapse: 'collapse', width: '100%', background: '#fff', fontSize: 15 }}>
+      <table border={1} style={{ borderCollapse: "collapse", width: "100%", background: "#fff", fontSize: 15 }}>
         <thead>
-          <tr style={{ background: '#e6f0d6' }}>
+          <tr style={{ background: "#e6f0d6" }}>
             <th>Rank</th>
             <th>セールNo.</th>
             <th>クラブ</th>
             <th>スキッパー</th>
             <th>クルー</th>
             <th>Total</th>
-            {data.results.map((_, i) => (
-              <th key={i} style={{ minWidth: 40 }}>R{i + 1}</th>
+            {results.map((_, i) => (
+              <th key={i}>R{i + 1}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {sortedParticipants.map((p, idx) => (
+          {sorted.map((p, idx) => (
             <tr key={p.id}>
-              <td style={{ textAlign: 'center', fontWeight: 'bold', background: '#e6f0d6' }}>{idx + 1}</td>
-              <td style={{ textAlign: 'center' }}>{p.sailNumber ?? ''}</td>
-              <td>{p.club ?? ''}</td>
-              <td>{p.skipper ?? p.name ?? ''}</td>
-              <td>
-                {Array.isArray(p.crew)
-                  ? p.crew.filter(Boolean).join(', ')
-                  : (p.crew ?? '')}
-              </td>
-              <td style={{ background: '#e6f0d6', textAlign: 'center' }}>{totals[p.id]}</td>
-              {table[p.id].map((sc, rIdx) => (
-                <td key={rIdx} style={{
-                  textAlign: 'center',
-                  textDecoration: cutIndexes[p.id]?.includes(rIdx) ? 'line-through' : undefined,
-                  background: cutIndexes[p.id]?.includes(rIdx) ? '#ffe0e0' : undefined,
-                  color: cutIndexes[p.id]?.includes(rIdx) ? '#888' : undefined
-                }}>
-                  {sc.code ? codeMap[sc.code] : sc.point}
-                </td>
-              ))}
+              <td>{idx + 1}</td>
+              <td>{p.sailNumber}</td>
+              <td>{p.club}</td>
+              <td>{p.skipper}</td>
+              <td>{p.crew.join(", ")}</td>
+              <td style={{ background: "#e6f0d6" }}>{scores[p.id]}</td>
+              {results.map((race, i) => {
+                const res = race.find((r) => r.participantId === p.id);
+                return (
+                  <td key={i} style={{ textAlign: "center" }}>
+                    {res
+                      ? res.code
+                        ? codeMap[res.code]
+                        : res.position || ""
+                      : ""}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
       </table>
-      <ul style={{ fontSize: 13, color: '#888', marginTop: 8 }}>
+      <ul style={{ fontSize: 13, color: "#888", marginTop: 8 }}>
         <li>DNF/DNS/DSQ/BFDは「参加艇数+1点」</li>
-        <li>カット（破棄）対象スコアは取消線＋色付き</li>
+        <li>カットなし・シンプル集計例</li>
       </ul>
     </section>
-  )
-}
+  );
+};
 
-export default ScoreTable
+export default ScoreTable;
