@@ -1,29 +1,30 @@
-import React from 'react'
-import { Participant, RaceResult, RaceCode } from '../types'
+import React from "react";
+import { Participant, RaceResult } from "../types";
+
+const resultCodes = ["", "DNF", "DNS", "DSQ", "BFD"] as const;
 
 type Props = {
-  participants: Participant[]
-  raceResults: RaceResult
-  onChange: (results: RaceResult) => void
-}
-
-const resultCodes: RaceCode[] = ['', 'DNF', 'DNS', 'DSQ', 'BFD']
+  participants: Participant[];
+  raceResults: RaceResult[];
+  onChange: (newRace: RaceResult[]) => void;
+};
 
 const RaceInputTable: React.FC<Props> = ({ participants, raceResults, onChange }) => {
-  const updateResult = (participantId: string, field: 'position' | 'code', value: any) => {
-    const newResults = raceResults.map(res =>
-      res.participantId !== participantId
-        ? res
-        : {
-            ...res,
-            [field]: field === 'position' ? (value ? Number(value) : null) : value
-          }
-    )
-    onChange(newResults)
+  function updateResult(participantId: string, field: "position" | "code", value: any) {
+    onChange(
+      raceResults.map((res) =>
+        res.participantId !== participantId
+          ? res
+          : {
+              ...res,
+              [field]: field === "position" ? (value ? Number(value) : null) : value,
+            }
+      )
+    );
   }
 
   return (
-    <table>
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
       <thead>
         <tr>
           <th>セールNo.</th>
@@ -36,46 +37,37 @@ const RaceInputTable: React.FC<Props> = ({ participants, raceResults, onChange }
       </thead>
       <tbody>
         {participants.map((p) => {
-          const result = raceResults.find(r => r.participantId === p.id) || { position: '', code: '' }
+          const result = raceResults.find((r) => r.participantId === p.id) || { position: "", code: "" };
           return (
             <tr key={p.id}>
-              <td>{p.sailNumber ?? ''}</td>
-              <td>{p.club ?? ''}</td>
-              <td>{p.skipper ?? p.name ?? ''}</td>
-              <td>
-                {Array.isArray(p.crew)
-                  ? p.crew.filter(Boolean).join(', ')
-                  : (p.crew ?? '')}
-              </td>
+              <td>{p.sailNumber}</td>
+              <td>{p.club}</td>
+              <td>{p.skipper}</td>
+              <td>{p.crew.join(", ")}</td>
               <td>
                 <input
                   type="number"
                   min={1}
                   style={{ width: 60 }}
-                  value={result.position ?? ''}
-                  onChange={e =>
-                    updateResult(p.id, 'position', e.target.value)
-                  }
+                  value={result.position ?? ""}
+                  onChange={(e) => updateResult(p.id, "position", e.target.value)}
                 />
               </td>
               <td>
-                <select
-                  value={result.code}
-                  onChange={e =>
-                    updateResult(p.id, 'code', e.target.value)
-                  }
-                >
-                  {resultCodes.map(code =>
-                    <option value={code} key={code}>{code || '-'}</option>
-                  )}
+                <select value={result.code ?? ""} onChange={(e) => updateResult(p.id, "code", e.target.value)}>
+                  {resultCodes.map((code) => (
+                    <option value={code} key={code}>
+                      {code || "-"}
+                    </option>
+                  ))}
                 </select>
               </td>
             </tr>
-          )
+          );
         })}
       </tbody>
     </table>
-  )
-}
+  );
+};
 
-export default RaceInputTable
+export default RaceInputTable;
