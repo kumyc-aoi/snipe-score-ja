@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Participant, RaceResult, AllRaceResults } from "./types";
 import Participants from "./components/Participants";
 import ParticipantForm from "./components/ParticipantForm";
@@ -6,15 +6,30 @@ import RaceInputTable from "./components/RaceInputTable";
 import ScoreTable from "./components/ScoreTable";
 import ParticipantsExportImport from "./components/ParticipantsExportImport";
 
-const initialParticipants: Participant[] = [];
-const initialResults: AllRaceResults = [];
+const PARTICIPANTS_KEY = "snipe-score-participants";
+const RESULTS_KEY = "snipe-score-results";
 
 export default function App() {
-  const [participants, setParticipants] = useState<Participant[]>(initialParticipants);
+  // localStorageからの初期化
+  const [participants, setParticipants] = useState<Participant[]>(() => {
+    const s = localStorage.getItem(PARTICIPANTS_KEY);
+    return s ? JSON.parse(s) : [];
+  });
+  const [results, setResults] = useState<AllRaceResults>(() => {
+    const s = localStorage.getItem(RESULTS_KEY);
+    return s ? JSON.parse(s) : [];
+  });
+
   const [editing, setEditing] = useState<Participant | null>(null);
   const [showForm, setShowForm] = useState(false);
 
-  const [results, setResults] = useState<AllRaceResults>(initialResults);
+  // 参加者・結果が変わるたびにlocalStorageへ保存
+  useEffect(() => {
+    localStorage.setItem(PARTICIPANTS_KEY, JSON.stringify(participants));
+  }, [participants]);
+  useEffect(() => {
+    localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
+  }, [results]);
 
   // 参加者追加・編集
   function handleSubmitParticipant(p: Participant) {
@@ -65,6 +80,8 @@ export default function App() {
     if (window.confirm("全ての参加者・レース・結果をリセットします。よろしいですか？")) {
       setParticipants([]);
       setResults([]);
+      localStorage.removeItem(PARTICIPANTS_KEY);
+      localStorage.removeItem(RESULTS_KEY);
     }
   }
 
@@ -88,9 +105,9 @@ export default function App() {
   return (
     <div style={{ padding: 24, maxWidth: 950, margin: "0 auto" }}>
       <h1 style={{ lineHeight: 1.2 }}>
-        医歯薬レース得点計算
+        Snipe Score
         <br />
-        <span style={{ fontSize: "0.6em", float: "right" }}>京都大学医学部ヨット部</span>
+        <span style={{ fontSize: "0.6em", float: "right" }}>日本語版</span>
       </h1>
 
       {/* 参加者リストのエクスポート・インポートボタン */}
@@ -101,7 +118,7 @@ export default function App() {
           setResults([]); // 参加者を入れ替えたらレース結果もリセット
         }}
       />
-      
+
       <button onClick={handleAddParticipant}>参加者追加</button>
       <button onClick={handleResetAll} style={{ marginLeft: 10, color: "red" }}>
         すべてリセット
@@ -149,4 +166,3 @@ export default function App() {
     </div>
   );
 }
-
