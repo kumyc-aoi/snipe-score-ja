@@ -114,3 +114,5 @@ function ResultTable({ participants, raceResults, discardCount }: {
     </section>
   )
 }
+
+export default ResultTable
