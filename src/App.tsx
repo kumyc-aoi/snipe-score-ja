@@ -86,7 +86,11 @@ export default function App() {
 
   return (
     <div style={{ padding: 24, maxWidth: 950, margin: "0 auto" }}>
-      <h1>Snipe Score</h1>
+      <h1>
+        医歯薬レース得点計算
+        <br />
+        京都大学医学部ヨット部
+      </h1>
 
       <button onClick={handleAddParticipant}>参加者追加</button>
       <button onClick={handleResetAll} style={{ marginLeft: 10, color: "red" }}>
