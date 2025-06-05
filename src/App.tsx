@@ -86,10 +86,10 @@ export default function App() {
 
   return (
     <div style={{ padding: 24, maxWidth: 950, margin: "0 auto" }}>
-      <h1>
+      <h1 style={{ lineHeight: 1.2 }}>
         医歯薬レース得点計算
         <br />
-        京都大学医学部ヨット部
+        <span style={{ fontSize: "0.6em", float: "right" }}>京都大学医学部ヨット部</span>
       </h1>
 
       <button onClick={handleAddParticipant}>参加者追加</button>
