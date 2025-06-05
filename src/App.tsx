@@ -88,9 +88,9 @@ export default function App() {
   return (
     <div style={{ padding: 24, maxWidth: 950, margin: "0 auto" }}>
       <h1 style={{ lineHeight: 1.2 }}>
-        Snipe Score
+        医歯薬レース得点計算ツール
         <br />
-        <span style={{ fontSize: "0.6em", float: "right" }}>日本語版</span>
+        <span style={{ fontSize: "0.6em", float: "right" }}>京大医学部ヨット部</span>
       </h1>
 
       {/* 参加者リストのエクスポート・インポートボタン */}
