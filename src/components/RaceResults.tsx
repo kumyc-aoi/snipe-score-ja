@@ -59,11 +59,10 @@ const RaceResults: React.FC<Props> = ({ data, setData }) => {
           <table>
             <thead>
               <tr>
-                <th>Bow #</th>
-                <th>Sail #</th>
-                <th>所属</th>
-                <th>Skipper</th>
-                <th>Crew</th>
+                <th>セールNo.</th>
+                <th>クラブ</th>
+                <th>スキッパー</th>
+                <th>クルー</th>
                 <th>順位</th>
                 <th>特別</th>
               </tr>
@@ -74,13 +73,13 @@ const RaceResults: React.FC<Props> = ({ data, setData }) => {
                 if (!participant) return null
                 return (
                   <tr key={result.participantId}>
-                    <td>{participant.bowNumber ?? ''}</td>
                     <td>{participant.sailNumber ?? ''}</td>
                     <td>{participant.club ?? ''}</td>
                     <td>{participant.skipper ?? participant.name ?? ''}</td>
-                    <td>{Array.isArray(participant.crew)
-                      ? participant.crew.filter(Boolean).join(', ')
-                      : (participant.crew ?? '')}
+                    <td>
+                      {Array.isArray(participant.crew)
+                        ? participant.crew.filter(Boolean).join(', ')
+                        : (participant.crew ?? '')}
                     </td>
                     <td>
                       <input
@@ -91,8 +90,6 @@ const RaceResults: React.FC<Props> = ({ data, setData }) => {
                         onChange={e =>
                           updateResult(raceIdx, result.participantId, 'position', e.target.value)
                         }
-                        // DNF等でも順位入力を許可
-                        // disabled={result.code !== ''}
                       />
                     </td>
                     <td>
