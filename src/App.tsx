@@ -4,6 +4,7 @@ import Participants from "./components/Participants";
 import ParticipantForm from "./components/ParticipantForm";
 import RaceInputTable from "./components/RaceInputTable";
 import ScoreTable from "./components/ScoreTable";
+import ParticipantsExportImport from "./components/ParticipantsExportImport";
 
 const initialParticipants: Participant[] = [];
 const initialResults: AllRaceResults = [];
@@ -92,6 +93,15 @@ export default function App() {
         <span style={{ fontSize: "0.6em", float: "right" }}>京都大学医学部ヨット部</span>
       </h1>
 
+      {/* 参加者リストのエクスポート・インポートボタン */}
+      <ParticipantsExportImport
+        participants={participants}
+        onImport={(list) => {
+          setParticipants(list);
+          setResults([]); // 参加者を入れ替えたらレース結果もリセット
+        }}
+      />
+      
       <button onClick={handleAddParticipant}>参加者追加</button>
       <button onClick={handleResetAll} style={{ marginLeft: 10, color: "red" }}>
         すべてリセット
