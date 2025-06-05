@@ -70,6 +70,9 @@ function ResultTable({ participants, raceResults, discardCount }: {
   const rows = getResultRows(participants, raceResults, discardCount)
   const raceCount = raceResults.length
 
+  // rowsを合計点昇順に並べ替え
+  const sortedRows = [...rows].sort((a, b) => a.sum - b.sum)
+
   return (
     <section style={{marginTop:40}}>
       <h2>順位表</h2>
@@ -91,24 +94,18 @@ function ResultTable({ participants, raceResults, discardCount }: {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, idx) =>
+          {sortedRows.map((row, idx) =>
             <tr key={idx}>
-              <td style={{fontWeight:"bold"}}>{row.rank}</td>
+              <td style={{fontWeight:"bold"}}>{idx + 1}</td>
               <td>{row.participant.name}</td>
               <td>{row.participant.sailNo}</td>
               <td>{row.participant.club}</td>
               {row.scores.map((score, i) =>
                 <td key={i} style={{
-                  textDecoration: row.cutIndexes.includes(i) ? "line-through" : undefined,
-                  color: row.cutIndexes.includes(i) ? "#a44" : undefined
-                }}>
-                  {typeof raceResults[i][idx] === 'string'
-                    ? codeDisplay(raceResults[i][idx] as SpecialCode)
-                    : score
-                  }
-                </td>
+                  // ...省略...
+                }}>{score ?? ""}</td>
               )}
-              <td style={{fontWeight:"bold"}}>{row.sum}</td>
+              <td>{row.sum}</td>
             </tr>
           )}
         </tbody>
@@ -117,5 +114,3 @@ function ResultTable({ participants, raceResults, discardCount }: {
     </section>
   )
 }
-
-export default ResultTable
