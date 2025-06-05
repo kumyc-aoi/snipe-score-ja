@@ -1,7 +1,6 @@
 import React from "react";
 import { Participant, RaceResult, SpecialCode } from "../types";
 
-// 着順やスコアの集計
 function getResultRows(participants: Participant[], raceResults: RaceResult[], discardCount: number) {
   return participants.map((p) => {
     const scores: (number | null)[] = [];
@@ -10,7 +9,6 @@ function getResultRows(participants: Participant[], raceResults: RaceResult[], d
       if (!res) {
         scores.push(null);
       } else if (res.code && res.code !== "") {
-        // DNF等の特別コードでも着順があれば表示
         scores.push(res.position ?? participants.length + 1);
       } else if (res.position !== null && res.position !== undefined) {
         scores.push(res.position);
@@ -19,7 +17,6 @@ function getResultRows(participants: Participant[], raceResults: RaceResult[], d
       }
     });
 
-    // カット対象を除く合計点
     const scoreWithIndexes = scores.map((v, i) => ({ v, i }));
     const sorted = [...scoreWithIndexes].sort((a, b) => (b.v ?? -1) - (a.v ?? -1));
     const cutIndexes = sorted.filter((s) => s.v !== null).slice(0, discardCount).map((s) => s.i);
@@ -57,7 +54,6 @@ function ResultTable({
   const rows = getResultRows(participants, raceResults, discardCount);
   const raceCount = raceResults.length;
 
-  // 合計点順に並べ替え
   const sortedRows = [...rows].sort((a, b) => a.sum - b.sum);
 
   return (
@@ -75,12 +71,10 @@ function ResultTable({
           <thead>
             <tr style={{ background: "#e6f0d6" }}>
               <th>Rank</th>
-              <th>Bow #</th>
-              <th>Sail #</th>
-              <th>Belongs</th>
-              <th>Skipper</th>
-              <th>Crew</th>
-              <th>Net</th>
+              <th>セールNo.</th>
+              <th>クラブ</th>
+              <th>スキッパー</th>
+              <th>クルー</th>
               <th>Total</th>
               {Array.from({ length: raceCount }, (_, i) => (
                 <th key={i} style={{ minWidth: 40 }}>
@@ -92,27 +86,16 @@ function ResultTable({
           <tbody>
             {sortedRows.map((row, idx) => (
               <tr key={row.participant.id}>
-                {/* 順位 */}
                 <td style={{ textAlign: 'center', fontWeight: 'bold', background: '#e6f0d6' }}>{idx + 1}</td>
-                {/* Bow # */}
-                <td style={{ textAlign: 'center' }}>{row.participant.bowNumber ?? ''}</td>
-                {/* Sail # */}
                 <td style={{ textAlign: 'center' }}>{row.participant.sailNumber ?? ''}</td>
-                {/* 所属 */}
                 <td>{row.participant.club ?? ''}</td>
-                {/* Skipper */}
                 <td>{row.participant.skipper ?? row.participant.name ?? ''}</td>
-                {/* Crew（配列も対応） */}
                 <td>
                   {Array.isArray(row.participant.crew)
                     ? row.participant.crew.filter(Boolean).join(', ')
                     : (row.participant.crew ?? '')}
                 </td>
-                {/* Net */}
                 <td style={{ background: '#e6f0d6', textAlign: 'center' }}>{row.sum}</td>
-                {/* Total */}
-                <td style={{ background: '#e6f0d6', textAlign: 'center' }}>{row.sum}</td>
-                {/* 各レース点＋特別コード */}
                 {row.scores.map((score, i) => {
                   const race = raceResults[i];
                   const res = race.find((r) => r.participantId === row.participant.id);
@@ -127,7 +110,6 @@ function ResultTable({
                         color: row.cutIndexes.includes(i) ? "#888" : undefined,
                       }}
                     >
-                      {/* DNF等でも着順を表示し、特別コードは右に出す */}
                       {score !== null && score !== undefined ? score : ""}
                       {special ? ` ${special}` : ""}
                     </td>
