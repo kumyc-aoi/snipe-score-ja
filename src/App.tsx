@@ -133,3 +133,6 @@ export default function App() {
 
       <ScoreTable participants={participants} results={results} />
     </div>
+  );
+}
+
