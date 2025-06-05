@@ -12,12 +12,20 @@ const RESULTS_KEY = "snipe-score-results";
 export default function App() {
   // localStorageからの初期化
   const [participants, setParticipants] = useState<Participant[]>(() => {
-    const s = localStorage.getItem(PARTICIPANTS_KEY);
-    return s ? JSON.parse(s) : [];
+    try {
+      const s = localStorage.getItem(PARTICIPANTS_KEY);
+      return s ? JSON.parse(s) : [];
+    } catch {
+      localStorage.removeItem(PARTICIPANTS_KEY);
+      return [];
   });
   const [results, setResults] = useState<AllRaceResults>(() => {
-    const s = localStorage.getItem(RESULTS_KEY);
-    return s ? JSON.parse(s) : [];
+    try {
+      const s = localStorage.getItem(RESULTS_KEY);
+      return s ? JSON.parse(s) : [];
+    } catch {
+      localStorage.removeItem(RESULTS_KEY);
+      return [];
   });
 
   const [editing, setEditing] = useState<Participant | null>(null);
