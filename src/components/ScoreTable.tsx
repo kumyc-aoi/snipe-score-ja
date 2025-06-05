@@ -10,7 +10,8 @@ const codeMap: Record<RaceCode, string> = {
   '': '',
   'DNF': 'DNF',
   'DNS': 'DNS',
-  'DSQ': 'DSQ'
+  'DSQ': 'DSQ',
+  'BFD': 'BFD',
 }
 
 const ScoreTable: React.FC<Props> = ({ data }) => {
@@ -26,28 +27,51 @@ const ScoreTable: React.FC<Props> = ({ data }) => {
   return (
     <section>
       <h2>順位表</h2>
-      <table border={1} style={{ borderCollapse: 'collapse', width: '100%', background: '#fff' }}>
+      <table border={1} style={{ borderCollapse: 'collapse', width: '100%', background: '#fff', fontSize: 15 }}>
         <thead>
           <tr style={{ background: '#e6f0d6' }}>
-            <th style={{ minWidth: 60 }}>Total</th>
+            <th>Rank</th>
+            <th>Bow #</th>
+            <th>Sail #</th>
+            <th>Belongs</th>
+            <th>Skipper</th>
+            <th>Crew</th>
+            <th>Net</th>
+            <th>Total</th>
             {data.results.map((_, i) => (
               <th key={i} style={{ minWidth: 40 }}>R{i + 1}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {sortedParticipants.map((p) => (
+          {sortedParticipants.map((p, idx) => (
             <tr key={p.id}>
-              {/* 合計点 */}
-              <td style={{
-                fontWeight: 'bold',
-                background: '#e6f0d6',
-                textAlign: 'center',
-                textDecoration: cutIndexes[p.id]?.length ? 'line-through' : undefined,
-                color: cutIndexes[p.id]?.length ? '#888' : undefined
-              }}>
-                {totals[p.id]}
+              {/* 順位 */}
+              <td style={{ textAlign: 'center', fontWeight: 'bold', background: '#e6f0d6' }}>{idx + 1}</td>
+              {/* Bow #（Bow番号がなければ空白） */}
+              <td style={{ textAlign: 'center' }}>{p.bowNumber ?? ''}</td>
+              {/* Sail # */}
+              <td style={{ textAlign: 'center' }}>{p.sailNumber ?? ''}</td>
+              {/* Belongs（所属クラブ） */}
+              <td>{p.club ?? ''}</td>
+              {/* Skipper（艇長/選手名） */}
+              <td>{p.skipper ?? p.name ?? ''}</td>
+              {/* Crew */}
+              <td>
+                {Array.isArray(p.crew)
+                  ? p.crew.filter(Boolean).join(', ')
+                  : (p.crew ?? '')}
               </td>
+              {/* Net（カット後合計点。通常は合計点と同じ） */}
+              <td style={{
+                background: '#e6f0d6',
+                textAlign: 'center'
+              }}>{totals[p.id]}</td>
+              {/* Total（合計点） */}
+              <td style={{
+                background: '#e6f0d6',
+                textAlign: 'center'
+              }}>{totals[p.id]}</td>
               {/* 各レース点 */}
               {table[p.id].map((sc, rIdx) => (
                 <td key={rIdx} style={{
@@ -64,7 +88,7 @@ const ScoreTable: React.FC<Props> = ({ data }) => {
         </tbody>
       </table>
       <ul style={{ fontSize: 13, color: '#888', marginTop: 8 }}>
-        <li>DNF/DNS/DSQは「参加艇数+1点」</li>
+        <li>DNF/DNS/DSQ/BFDは「参加艇数+1点」</li>
         <li>カット（破棄）対象スコアは取消線＋色付き</li>
       </ul>
     </section>
